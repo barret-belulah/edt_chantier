@@ -1,0 +1,83 @@
+[
+  {
+    "id": "muret", "nom": "Muret en parpaings enduit (≈ 10 ml, h ≈ 0,8 m, non soutènement)",
+    "taches": [
+      { "id": "F1", "nom": "Implantation et niveaux", "duree_jours": 0.5, "effectif": 2, "materiel": "Cordeaux, niveau laser", "apres": [] },
+      { "id": "F2", "nom": "Fouille de la semelle", "duree_jours": 1, "effectif": 2, "materiel": "Mini-pelle ou bêches", "apres": ["F1"] },
+      { "id": "F3", "nom": "Ferraillage et coulage de la semelle", "duree_jours": 1, "effectif": 2, "materiel": "Bétonnière, armatures", "apres": ["F2"] },
+      { "id": "F4", "nom": "Attente prise de la semelle", "duree_jours": 2, "effectif": 0, "materiel": "", "apres": ["F3"], "commentaire": "Attente : aucun effectif (« n/a » dans la source)." },
+      { "id": "F5", "nom": "Montage des parpaings et chaînages verticaux", "duree_jours": 3, "effectif": 2, "materiel": "Truelles, niveau, bétonnière", "apres": ["F4"] },
+      { "id": "F6", "nom": "Chaînage haut et couvertines", "duree_jours": 1, "effectif": 2, "materiel": "Mortier, couvertines", "apres": ["F5"] },
+      { "id": "F7", "nom": "Enduit des deux faces", "duree_jours": 2, "effectif": 2, "materiel": "Échafaudage léger, taloches", "apres": ["F6"] }
+    ]
+  },
+  {
+    "id": "allee-paves", "nom": "Allée en pavés sur lit de pose (≈ 40 m²)",
+    "taches": [
+      { "id": "G1", "nom": "Implantation, pentes d’évacuation", "duree_jours": 0.5, "effectif": 2, "materiel": "Niveau laser, piquets", "apres": [] },
+      { "id": "G2", "nom": "Décaissement et évacuation", "duree_jours": 1.5, "effectif": 2, "materiel": "Mini-pelle, dumper", "apres": ["G1"] },
+      { "id": "G3", "nom": "Compactage, géotextile, grave", "duree_jours": 2, "effectif": 2, "materiel": "Plaque vibrante, brouettes", "apres": ["G2"] },
+      { "id": "G4", "nom": "Bordures béton", "duree_jours": 1.5, "effectif": 2, "materiel": "Bétonnière, truelles", "apres": ["G3"] },
+      { "id": "G5", "nom": "Attente prise des bordures", "duree_jours": 1, "effectif": 0, "materiel": "", "apres": ["G4"], "commentaire": "Attente : aucun effectif (« n/a » dans la source)." },
+      { "id": "G6", "nom": "Réglage du lit de sable", "duree_jours": 1, "effectif": 2, "materiel": "Règles, tiges de réglage", "apres": ["G5"] },
+      { "id": "G7", "nom": "Pose des pavés et coupes", "duree_jours": 4, "effectif": 2, "materiel": "Maillet, cordeaux, scie à pavés", "apres": ["G6"] },
+      { "id": "G8", "nom": "Compactage et sablage des joints", "duree_jours": 1, "effectif": 2, "materiel": "Plaque vibrante à semelle caoutchouc, sable", "apres": ["G7"] },
+      { "id": "G9", "nom": "Nettoyage", "duree_jours": 0.5, "effectif": 1, "materiel": "Balai, souffleur", "apres": ["G8"] }
+    ]
+  },
+  {
+    "id": "dalle-beton", "nom": "Dalle béton armée (≈ 20 m², épaisseur ≈ 12 cm)",
+    "taches": [
+      { "id": "H1", "nom": "Implantation et niveaux", "duree_jours": 0.5, "effectif": 2, "materiel": "Niveau laser, piquets", "apres": [] },
+      { "id": "H2", "nom": "Décaissement et évacuation", "duree_jours": 1, "effectif": 2, "materiel": "Mini-pelle, brouettes", "apres": ["H1"] },
+      { "id": "H3", "nom": "Hérisson (grave) et film polyane", "duree_jours": 1, "effectif": 2, "materiel": "Plaque vibrante", "apres": ["H2"] },
+      { "id": "H4", "nom": "Coffrage périphérique", "duree_jours": 0.5, "effectif": 2, "materiel": "Banches, piquets", "apres": ["H3"] },
+      { "id": "H5", "nom": "Pose du treillis soudé et des cales", "duree_jours": 0.5, "effectif": 2, "materiel": "Treillis, cales, pince", "apres": ["H4"] },
+      { "id": "H6", "nom": "Coulage, réglage et talochage", "duree_jours": 1, "effectif": 3, "materiel": "Toupie, règle vibrante, taloches", "apres": ["H5"] },
+      { "id": "H7", "nom": "Sciage des joints", "duree_jours": 0.5, "effectif": 1, "materiel": "Scie à béton", "apres": ["H6"] },
+      { "id": "H8", "nom": "Décoffrage", "duree_jours": 0.5, "effectif": 1, "materiel": "Marteau, pied-de-biche", "apres": ["H7"] }
+    ]
+  },
+  {
+    "id": "cloture", "nom": "Clôture rigide et portail (≈ 30 ml)",
+    "taches": [
+      { "id": "J1", "nom": "Implantation, vérification des limites", "duree_jours": 0.5, "effectif": 2, "materiel": "Cordeau, mètre, plan de bornage", "apres": [] },
+      { "id": "J2", "nom": "Fouilles des poteaux", "duree_jours": 1, "effectif": 2, "materiel": "Tarière, bêches", "apres": ["J1"] },
+      { "id": "J3", "nom": "Scellement des poteaux", "duree_jours": 1, "effectif": 2, "materiel": "Bétonnière, niveau", "apres": ["J2"] },
+      { "id": "J4", "nom": "Attente prise des scellements", "duree_jours": 2, "effectif": 0, "materiel": "", "apres": ["J3"], "commentaire": "Attente : aucun effectif (« n/a » dans la source)." },
+      { "id": "J5", "nom": "Pose des panneaux et fixations", "duree_jours": 2, "effectif": 2, "materiel": "Visseuse, niveau", "apres": ["J4"] },
+      { "id": "J6", "nom": "Pose et réglage du portail", "duree_jours": 1, "effectif": 2, "materiel": "Visseuse, niveau", "apres": ["J4"] },
+      { "id": "J7", "nom": "Finitions (capuchons, réglages)", "duree_jours": 0.5, "effectif": 1, "materiel": "Outillage à main", "apres": ["J5", "J6"] }
+    ]
+  },
+  {
+    "id": "mobilier", "nom": "Mobilier d’espace extérieur (≈ 4 bancs, 2 tables de pique-nique, 6 corbeilles, 1 abri vélos)",
+    "taches": [
+      { "id": "I1", "nom": "Implantation selon plan et repérage des réseaux (DT-DICT)", "duree_jours": 0.5, "effectif": 2, "materiel": "Plan, cordeaux, piquets", "apres": [] },
+      { "id": "I2", "nom": "Réception, contrôle et tri du matériel", "duree_jours": 0.5, "effectif": 2, "materiel": "Transpalette, bordereau", "apres": [] },
+      { "id": "I3", "nom": "Fouilles des plots", "duree_jours": 1.5, "effectif": 2, "materiel": "Tarière, mini-pelle", "apres": ["I1"] },
+      { "id": "I4", "nom": "Coulage des plots et scellement des platines", "duree_jours": 1, "effectif": 2, "materiel": "Bétonnière, niveau", "apres": ["I2", "I3"] },
+      { "id": "I5", "nom": "Attente prise des plots", "duree_jours": 1, "effectif": 0, "materiel": "", "apres": ["I4"], "commentaire": "Attente : aucun effectif (« n/a » dans la source)." },
+      { "id": "I6", "nom": "Assemblage et fixation (bancs, tables, abri vélos)", "duree_jours": 1.5, "effectif": 2, "materiel": "Visseuse, clés, niveau", "apres": ["I5"] },
+      { "id": "I7", "nom": "Pose des corbeilles et de la signalétique", "duree_jours": 0.5, "effectif": 1, "materiel": "Outillage à main", "apres": ["I4"] },
+      { "id": "I8", "nom": "Contrôle, serrage et réception", "duree_jours": 0.5, "effectif": 2, "materiel": "Clés dynamométriques", "apres": ["I6", "I7"] }
+    ]
+  },
+  {
+    "id": "aire-jeux", "nom": "Aire de jeux avec 2 à 3 structures (≈ 100 m², sol amortissant en copeaux ou gravier rond)",
+    "taches": [
+      { "id": "K1", "nom": "Plan d’implantation et zones de sécurité (espacements, zones d’impact)", "duree_jours": 0.5, "effectif": 2, "materiel": "Plan, notices, cordeaux", "apres": [] },
+      { "id": "K2", "nom": "DT-DICT et repérage des réseaux", "duree_jours": 0.5, "effectif": 1, "materiel": "Plans de réseaux", "apres": [] },
+      { "id": "K3", "nom": "Décaissement de l’emprise (≈ 30 cm)", "duree_jours": 1, "effectif": 2, "materiel": "Mini-pelle, dumper", "apres": ["K1", "K2"] },
+      { "id": "K4", "nom": "Pose des bordures périphériques", "duree_jours": 1, "effectif": 2, "materiel": "Bétonnière, bordures", "apres": ["K3"] },
+      { "id": "K5", "nom": "Fouilles des fondations des structures", "duree_jours": 1, "effectif": 2, "materiel": "Tarière, mini-pelle", "apres": ["K3"] },
+      { "id": "K6", "nom": "Prémontage des structures au sol", "duree_jours": 1.5, "effectif": 2, "materiel": "Visseuse, clés, notices", "apres": ["K1"] },
+      { "id": "K7", "nom": "Mise en place et scellement des structures (levage à 3)", "duree_jours": 1.5, "effectif": 3, "materiel": "Sangles, étais, bétonnière", "apres": ["K5", "K6"] },
+      { "id": "K8", "nom": "Attente prise du béton", "duree_jours": 2, "effectif": 0, "materiel": "", "apres": ["K7"], "commentaire": "Attente : aucun effectif (« n/a » dans la source)." },
+      { "id": "K9", "nom": "Géotextile et sous-couche drainante", "duree_jours": 1, "effectif": 2, "materiel": "Brouettes, grave, géotextile", "apres": ["K4", "K8"] },
+      { "id": "K10", "nom": "Mise en œuvre du sol amortissant (épaisseur selon hauteur de chute)", "duree_jours": 1.5, "effectif": 2, "materiel": "Brouettes, râteaux, règle", "apres": ["K9"] },
+      { "id": "K11", "nom": "Panneau d’information, barrières, finitions", "duree_jours": 0.5, "effectif": 2, "materiel": "Outillage à main", "apres": ["K10"] },
+      { "id": "K12", "nom": "Contrôle de conformité et réception", "duree_jours": 0.5, "effectif": 1, "materiel": "Notice fabricant, check-list", "apres": ["K11"] }
+    ]
+  }
+]
