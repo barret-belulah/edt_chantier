@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planificateur de chantiers paysagers</title>
+<style>
+:root{--bg:#eef1ec;--card:#fff;--ink:#1d2823;--mute:#5b6a62;--line:#d3dad4;--acc:#1f5f54;--acc-ink:#fff;--warn:#8a4b00;--warn-bg:#fff3df;--err:#a12622;--err-bg:#fdeceb;--att:#e8eef5}
+@media (prefers-color-scheme:dark){:root{--bg:#141a17;--card:#1d2622;--ink:#e6ece8;--mute:#9db0a5;--line:#34423b;--acc:#5fb7a3;--acc-ink:#0d1a16;--warn:#f0b96a;--warn-bg:#3a2d16;--err:#ff9b95;--err-bg:#3d1f1d;--att:#232f3a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:16px;border-bottom:1px solid var(--line);background:var(--card)}
+h1{margin:0;font-size:1.25rem}
+h2{margin:0 0 10px;font-size:1.05rem}
+main{max-width:1100px;margin:0 auto;padding:12px;display:grid;gap:12px}
+@media(min-width:860px){main{grid-template-columns:320px 1fr;align-items:start}aside{position:sticky;top:12px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px}
+aside .card+.card{margin-top:12px}
+label.f{display:block;margin-bottom:10px;font-size:.9rem;color:var(--mute)}
+input,select,textarea,button{font:inherit;color:inherit}
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);margin-top:3px;color:var(--ink)}
+input[type=number]{width:5.5rem;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+input[aria-invalid=true]{border-color:var(--err);background:var(--err-bg)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+button{padding:9px 14px;border-radius:6px;border:1px solid var(--acc);background:transparent;cursor:pointer;color:var(--acc)}
+ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.task{border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:6px;padding:10px 12px;background:var(--card)}
+.task.attente{border-left-color:#5a7fa6;background:var(--att)}
+.task.off{opacity:.55;border-left-color:var(--line)}
+.top{display:flex;gap:10px;align-items:flex-start}
+.top input[type=checkbox]{width:22px;height:22px;margin-top:3px;flex:none;accent-color:var(--acc)}
+.nm{font-weight:600}.id{color:var(--mute);font-weight:400;margin-right:6px}
+.fields{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 0 32px;align-items:center}
+.fields label{font-size:.9rem;color:var(--mute);display:flex;gap:6px;align-items:center}
+.meta{margin:6px 0 0 32px;font-size:.88rem;color:var(--mute)}
+.meta b{color:var(--ink);font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:.82rem;margin-top:6px}
+.subs{margin:8px 0 0 32px;padding:0;list-style:none;display:grid;gap:6px;border-top:1px dashed var(--line);padding-top:8px}
+.subs li{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:.92rem}
+.msg{font-size:.82rem;color:var(--err);margin:4px 0 0 32px}
+.totals{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;background:var(--acc);color:var(--acc-ink);padding:12px 14px;border-radius:8px;margin-top:12px}
+.totals .big{font-size:1.5rem;font-weight:700}
+.totals small{opacity:.9}
+.error{background:var(--err-bg);color:var(--err);border:1px solid var(--err);border-radius:8px;padding:14px;margin:12px}
+.error ul{margin:8px 0 0;padding-left:20px}
+.note{font-size:.85rem;color:var(--mute);margin:10px 0 0}
+input[type=date]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);margin-top:3px;color:var(--ink)}
+.row{display:flex;gap:8px;align-items:center}.row input{flex:1;margin-top:0}
+.chips{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.chips li{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:.9rem}
+.chips button{padding:4px 10px;font-size:.85rem}
+.plan{margin-top:12px}
+.tw{overflow-x:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600;white-space:nowrap}
+tr.late td{color:var(--err)}
+.ok{margin:0 0 8px;padding:10px 12px;border-radius:6px;border:1px solid var(--acc)}
+.bad{margin:0 0 8px;padding:10px 12px;border-radius:6px;border:1px solid var(--err);background:var(--err-bg);color:var(--err);font-weight:600}
+.hyp{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:.9rem}
+.hyp h3{margin:0 0 6px;font-size:1rem}.hyp ul{margin:0;padding-left:18px}.hyp li{margin-bottom:5px}
+@media print{aside select,button{display:none}.totals{position:static}}
+</style>
+</head>
+<body>
+<header><h1>Planificateur de chantiers paysagers</h1></header>
+<div id="err" role="alert" hidden></div>
+<main id="app" hidden>
+  <aside>
+    <section class="card">
+      <h2>Chantier</h2>
+      <label class="f">Type de chantier<select id="sel"></select></label>
+      <button type="button" id="reset">Rétablir les valeurs du fichier</button>
+    </section>
+    <section class="card">
+      <h2>Dates</h2>
+      <label class="f">Date de début<input type="date" id="d-start"></label>
+      <label class="f">Date limite (facultative)<input type="date" id="d-lim"></label>
+      <label class="f" for="d-add">Jour d’indisponibilité</label>
+      <div class="row"><input type="date" id="d-add"><button type="button" id="d-addbtn">Ajouter</button></div>
+      <ul class="chips" id="d-list"></ul>
+    </section>
+    <section class="card">
+      <h2>Entreprise</h2>
+      <label class="f">Nom<input type="text" id="e-nom" autocomplete="organization"></label>
+      <label class="f">Téléphone<input type="tel" id="e-tel" autocomplete="tel"></label>
+      <label class="f">E-mail<input type="email" id="e-mail" autocomplete="email"></label>
+    </section>
+    <section class="card">
+      <h2>Client</h2>
+      <label class="f">Nom<input type="text" id="c-nom"></label>
+      <label class="f">Adresse du chantier<input type="text" id="c-adr"></label>
+    </section>
+  </aside>
+  <section>
+    <div class="card">
+      <h2 id="titre"></h2>
+      <ul class="tasks" id="tasks"></ul>
+      <p class="note">Cochez les tâches à réaliser ; modifiez durée (pas de 0,5) et effectif si besoin. Le total additionne les durées des tâches cochées, mises bout à bout, sans tenir compte des tâches en parallèle.</p>
+    </div>
+    <div class="totals" aria-live="polite">
+      <span><span class="big" id="t-dur">0</span> j <small>durée totale cumulée</small></span>
+      <span><span class="big" id="t-eff">0</span> j-h <small>effort (durée × effectif)</small></span>
+      <small id="t-cnt"></small>
+    </div>
+    <div class="card plan" id="plan" aria-live="polite"></div>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => String(Math.round(n * 100) / 100).replace(".", ",");
+const isHalf = n => typeof n === "number" && isFinite(n) && n >= 0 && Math.abs(n * 2 - Math.round(n * 2)) < 1e-9;
+let raw = "", data = [], cur = null, st = {};
+
+function showError(titre, items) {
+  const e = $("#err");
+  e.className = "error";
+  e.innerHTML = "<strong>" + esc(titre) + "</strong><ul>" + items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul>";
+  e.hidden = false; $("#app").hidden = true;
+}
+function lineOf(needle) {
+  const i = raw.indexOf(needle);
+  return i < 0 ? "" : " (ligne " + raw.slice(0, i).split("\n").length + ")";
+}
+
+function validate(j) {
+  const errs = [];
+  if (!Array.isArray(j)) return ["Le fichier doit contenir une liste de chantiers : il doit commencer par « [ » et finir par « ] »."];
+  if (!j.length) return ["La liste de chantiers est vide."];
+  const ids = new Set();
+  j.forEach((c, ci) => {
+    const w = "Chantier n° " + (ci + 1) + (c && c.nom ? " « " + c.nom + " »" : "");
+    if (!c || typeof c !== "object") { errs.push(w + " : n’est pas un objet."); return; }
+    if (!c.id || typeof c.id !== "string") errs.push(w + " : champ « id » manquant ou invalide" + lineOf(c.nom || ""));
+    else if (ids.has(c.id)) errs.push(w + " : l’id « " + c.id + " » est utilisé deux fois" + lineOf('"' + c.id + '"'));
+    ids.add(c.id);
+    if (!c.nom || typeof c.nom !== "string") errs.push(w + " : champ « nom » manquant.");
+    if (!Array.isArray(c.taches) || !c.taches.length) { errs.push(w + " : champ « taches » manquant ou vide."); return; }
+    const tid = new Set(c.taches.map(t => t && t.id));
+    const seen = new Set();
+    c.taches.forEach((t, ti) => {
+      const tw = w + ", tâche n° " + (ti + 1) + (t && t.id ? " (" + t.id + ")" : "");
+      const L = t && t.id ? lineOf('"id": "' + t.id + '"') : "";
+      if (!t || typeof t !== "object") { errs.push(tw + " : n’est pas un objet."); return; }
+      if (!t.id || typeof t.id !== "string") errs.push(tw + " : champ « id » manquant" + L);
+      else if (seen.has(t.id)) errs.push(tw + " : id en double" + L);
+      seen.add(t.id);
+      if (!t.nom || typeof t.nom !== "string") errs.push(tw + " : champ « nom » manquant" + L);
+      if (typeof t.effectif !== "number" || !(t.effectif >= 0)) errs.push(tw + " : « effectif » doit être un nombre positif ou nul" + L);
+      if (!Array.isArray(t.apres)) errs.push(tw + " : « apres » doit être une liste (vide si aucune dépendance)" + L);
+      else t.apres.forEach(a => { if (!tid.has(a)) errs.push(tw + " : dépend de « " + a + " », qui n’existe pas dans ce chantier" + L); });
+      if (t.materiel != null && typeof t.materiel !== "string" && !Array.isArray(t.materiel)) errs.push(tw + " : « materiel » doit être du texte ou une liste" + L);
+      if (Array.isArray(t.sous_taches) && t.sous_taches.length) {
+        t.sous_taches.forEach((s, si) => {
+          if (!s || !s.nom) errs.push(tw + ", sous-tâche n° " + (si + 1) + " : « nom » manquant" + L);
+          if (!s || !isHalf(s.duree_jours)) errs.push(tw + ", sous-tâche n° " + (si + 1) + " : « duree_jours » doit être un nombre par pas de 0,5" + L);
+        });
+      } else if (!isHalf(t.duree_jours)) errs.push(tw + " : « duree_jours » doit être un nombre positif ou nul, par pas de 0,5" + L);
+    });
+  });
+  return errs;
+}
+
+async function load() {
+  let res;
+  try { res = await fetch("chantiers.json", { cache: "no-store" }); }
+  catch (e) { return showError("Impossible de lire chantiers.json", ["Le fichier n’a pas pu être chargé. Si vous ouvrez index.html directement depuis votre ordinateur, le navigateur bloque la lecture : utilisez le site publié (GitHub Pages) ou un serveur local."]); }
+  if (!res.ok) return showError("Le fichier chantiers.json est introuvable", ["Le serveur a répondu « erreur " + res.status + " ». Vérifiez que chantiers.json est dans le même dossier que index.html et que son nom est exact (minuscules)."]);
+  raw = await res.text();
+  let j;
+  try { j = JSON.parse(raw); }
+  catch (e) {
+    let pos = "", m;
+    if ((m = /position (\d+)/.exec(e.message))) { const b = raw.slice(0, +m[1]).split("\n"); pos = " Erreur vers la ligne " + b.length + ", colonne " + (b[b.length - 1].length + 1) + "."; }
+    else if ((m = /line (\d+) column (\d+)/.exec(e.message))) pos = " Erreur vers la ligne " + m[1] + ", colonne " + m[2] + ".";
+    return showError("Le fichier chantiers.json contient une erreur de syntaxe", ["Le contenu n’est pas un JSON valide." + pos + " Cherchez une virgule, une accolade ou un guillemet manquant ou en trop.", "Message du navigateur : " + e.message]);
+  }
+  const errs = validate(j);
+  if (errs.length) return showError("Le fichier chantiers.json ne respecte pas le format attendu", errs);
+  data = j;
+  $("#sel").innerHTML = data.map((c, i) => '<option value="' + i + '">' + esc(c.nom) + "</option>").join("");
+  $("#err").hidden = true; $("#app").hidden = false;
+  select(0);
+}
+
+function initState(c) {
+  st = {};
+  c.taches.forEach(t => {
+    const subs = Array.isArray(t.sous_taches) && t.sous_taches.length ? t.sous_taches.map(s => s.duree_jours) : null;
+    st[t.id] = { on: true, duree: subs ? null : t.duree_jours, subs, eff: t.effectif };
+  });
+}
+const dur = t => st[t.id].subs ? st[t.id].subs.reduce((a, b) => a + b, 0) : st[t.id].duree;
+
+function select(i) {
+  cur = data[i]; initState(cur); $("#titre").textContent = cur.nom;
+  $("#tasks").innerHTML = cur.taches.map(taskHtml).join("");
+  refresh();
+}
+
+function taskHtml(t) {
+  const name = id => { const x = cur.taches.find(y => y.id === id); return x ? id + " – " + x.nom : id; };
+  const mat = Array.isArray(t.materiel) ? t.materiel.join(", ") : (t.materiel || "");
+  const s = st[t.id];
+  let h = '<li class="task' + (t.effectif === 0 ? " attente" : "") + '" data-id="' + esc(t.id) + '">';
+  h += '<div class="top"><input type="checkbox" checked aria-label="Réaliser la tâche ' + esc(t.id) + '" data-k="on"><span class="nm"><span class="id">' + esc(t.id) + "</span>" + esc(t.nom) + "</span></div>";
+  h += '<div class="fields">';
+  h += s.subs ? '<span>Durée : <b data-r="dur"></b> j (somme des sous-tâches)</span>'
+              : '<label>Durée (j)<input type="number" min="0" step="0.5" inputmode="decimal" value="' + s.duree + '" data-k="duree"></label>';
+  h += '<label>Effectif<input type="number" min="0" step="1" inputmode="numeric" value="' + s.eff + '" data-k="eff"></label></div>';
+  h += '<div class="msg" data-r="msg" hidden></div>';
+  if (s.subs) h += '<ul class="subs">' + t.sous_taches.map((x, k) => '<li><span>' + esc(x.nom) + '</span><label>j <input type="number" min="0" step="0.5" inputmode="decimal" value="' + x.duree_jours + '" data-k="sub" data-n="' + k + '"></label></li>').join("") + "</ul>";
+  h += '<div class="meta">';
+  if (mat) h += "<div><b>Matériel :</b> " + esc(mat) + "</div>";
+  h += "<div><b>Après :</b> " + (t.apres.length ? esc(t.apres.map(name).join(" ; ")) : "aucune dépendance") + "</div>";
+  if (t.commentaire) h += "<div>" + esc(t.commentaire) + "</div>";
+  h += '</div><div data-r="warn"></div></li>';
+  return h;
+}
+
+function refresh() {
+  let d = 0, e = 0, n = 0;
+  cur.taches.forEach(t => {
+    const li = $('li[data-id="' + CSS.escape(t.id) + '"]'), s = st[t.id], v = dur(t);
+    li.classList.toggle("off", !s.on);
+    const r = li.querySelector('[data-r="dur"]'); if (r) r.textContent = fmt(v);
+    const miss = s.on ? t.apres.filter(a => !st[a].on) : [];
+    li.querySelector('[data-r="warn"]').innerHTML = miss.length ? '<span class="badge">Dépend de tâche(s) décochée(s) : ' + esc(miss.join(", ")) + "</span>" : "";
+    if (s.on) { d += v; e += v * s.eff; n++; }
+  });
+  $("#t-dur").textContent = fmt(d); $("#t-eff").textContent = fmt(e);
+  $("#t-cnt").textContent = n + " tâche" + (n > 1 ? "s" : "") + " sur " + cur.taches.length;
+  renderPlan();
+}
+
+$("#tasks").addEventListener("input", ev => {
+  const el = ev.target, k = el.dataset.k, li = el.closest("li"); if (!k) return;
+  const s = st[li.dataset.id], msg = li.querySelector('[data-r="msg"]');
+  if (k === "on") s.on = el.checked;
+  else {
+    const v = el.value === "" ? NaN : Number(el.value);
+    const ok = k === "eff" ? (isFinite(v) && v >= 0) : isHalf(v);
+    el.setAttribute("aria-invalid", ok ? "false" : "true");
+    msg.hidden = ok;
+    if (!ok) msg.textContent = k === "eff" ? "L’effectif doit être un nombre positif ou nul." : "La durée doit être positive, par pas de 0,5 (0,5 ; 1 ; 1,5…).";
+    else if (k === "eff") s.eff = v; else if (k === "duree") s.duree = v; else s.subs[+el.dataset.n] = v;
+  }
+  refresh();
+});
+$("#sel").addEventListener("change", e => select(+e.target.value));
+$("#reset").addEventListener("click", () => select(+$("#sel").value));
+/* ===== Planning ===== */
+let unav = [];
+const pd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const iso = d => d.toISOString().slice(0, 10);
+const addD = (d, n) => new Date(d.getTime() + n * 86400000);
+const fdate = d => d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const fshort = d => d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
+function easter(y) { // algorithme de Meeus/Jones/Butcher (calendrier grégorien)
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25),
+    g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4,
+    l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+    mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(y, mo - 1, da));
+}
+const hcache = {};
+function holidays(y) {
+  if (hcache[y]) return hcache[y];
+  const p = easter(y), f = (m, d) => iso(new Date(Date.UTC(y, m - 1, d)));
+  return hcache[y] = new Map([
+    [f(1, 1), "Jour de l’an"], [iso(addD(p, 1)), "Lundi de Pâques"], [f(5, 1), "Fête du Travail"], [f(5, 8), "Victoire 1945"],
+    [iso(addD(p, 39)), "Ascension"], [iso(addD(p, 50)), "Lundi de Pentecôte"], [f(7, 14), "Fête nationale"],
+    [f(8, 15), "Assomption"], [f(11, 1), "Toussaint"], [f(11, 11), "Armistice 1918"], [f(12, 25), "Noël"]]);
+}
+const baseReason = d => { const w = d.getUTCDay(); if (w === 0 || w === 6) return "week-end"; return holidays(d.getUTCFullYear()).get(iso(d)) || null; };
+const skipReason = d => baseReason(d) || (unav.includes(iso(d)) ? "indisponible" : null);
+
+function buildPlan(start) {
+  const active = new Set(cur.taches.filter(t => st[t.id].on).map(t => t.id));
+  const done = new Set(cur.taches.filter(t => st[t.id].on && dur(t) === 0).map(t => t.id));
+  const left = cur.taches.filter(t => st[t.id].on && dur(t) > 0), order = [], rows = [];
+  while (left.length) { // ordre du fichier, dans le respect des dépendances (celles vers des tâches décochées sont ignorées)
+    const i = left.findIndex(t => t.apres.every(a => !active.has(a) || done.has(a)));
+    if (i < 0) return { cycle: left.map(t => t.id) };
+    const t = left.splice(i, 1)[0]; order.push(t); done.add(t.id);
+  }
+  let d = start, h = 0, guard = 0;
+  const nextSlot = () => {
+    while (skipReason(d)) { d = addD(d, 1); h = 0; if (++guard > 4000) return null; }
+    const s = { date: iso(d), half: h };
+    if (h === 0) h = 1; else { h = 0; d = addD(d, 1); }
+    return s;
+  };
+  for (const t of order) {
+    const n = Math.round(dur(t) * 2);
+    for (let k = 1; k <= n; k++) { const s = nextSlot(); if (!s) return { overflow: true }; rows.push({ ...s, t, k, n }); }
+  }
+  return { rows, order };
+}
+
+function hypHtml(plan, s, end) {
+  const li = [];
+  li.push("Horaires : du lundi au vendredi, matin de 8 h à 12 h, après-midi de 14 h à 18 h. Une demi-journée vaut 0,5 j ; les tâches se suivent sans interruption, sauf jours exclus. Une seule tâche à la fois.");
+  let ex = "Jours exclus : samedis, dimanches, jours fériés français (calculés pour chaque année, Pâques, Ascension et Pentecôte compris) et jours d’indisponibilité saisis. Les jours propres à l’Alsace-Moselle (Vendredi saint, 26 décembre) ne sont pas pris en compte ; le lundi de Pentecôte est traité comme férié.";
+  if (s) {
+    const up = end || (s.slice(0, 4) + "-12-31"), list = [];
+    for (let y = +s.slice(0, 4); y <= +up.slice(0, 4); y++) holidays(y).forEach((nom, dt) => { if (dt >= s && dt <= up) list.push([dt, nom]); });
+    unav.filter(u => u >= s && u <= up).forEach(u => list.push([u, "indisponibilité"]));
+    list.sort((a, b) => a[0].localeCompare(b[0]));
+    ex += list.length ? " Dans la période : " + list.map(x => fshort(pd(x[0])) + " (" + x[1] + ")").join(" ; ") + "." : " Aucun dans la période.";
+  }
+  li.push(ex);
+  const used = plan && plan.order ? plan.order : cur.taches.filter(t => st[t.id].on);
+  li.push("Ordre : une tâche ne commence qu’après la fin de toutes celles dont elle dépend (« Après »). Les dépendances vers des tâches décochées sont ignorées. Les tâches d’attente (effectif 0) occupent des jours travaillés comme les autres.");
+  li.push("Durées utilisées (valeurs du fichier ou saisies, estimations non validées) : " + (used.length ? used.map(t => t.id + " " + fmt(dur(t)) + " j × " + st[t.id].eff + " pers.").join(" ; ") : "aucune tâche cochée") + ".");
+  return '<div class="hyp"><h3>Hypothèses de calcul</h3><ul>' + li.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul></div>";
+}
+
+function renderPlan() {
+  if (!cur) return;
+  const s = $("#d-start").value, lim = $("#d-lim").value, act = cur.taches.filter(t => st[t.id].on);
+  let out = "<h2>Planning</h2>", plan = null, end = null;
+  if (!s) out += '<p class="note">Choisissez une date de début pour calculer le planning.</p>';
+  else if (!act.length) out += '<p class="note">Aucune tâche cochée : rien à planifier.</p>';
+  else {
+    plan = buildPlan(pd(s));
+    if (plan.cycle) out += '<p class="bad" role="alert">Planning impossible : dépendances circulaires entre ' + esc(plan.cycle.join(", ")) + ".</p>";
+    else if (plan.overflow) out += '<p class="bad" role="alert">Planning impossible : aucun jour travaillable trouvé pendant plus de 10 ans. Vérifiez les jours d’indisponibilité.</p>';
+    else if (!plan.rows.length) out += '<p class="note">Toutes les tâches cochées ont une durée nulle.</p>';
+    else {
+      const last = plan.rows[plan.rows.length - 1]; end = last.date;
+      const endTxt = fdate(pd(end)) + (last.half ? " (fin d’après-midi, 18 h)" : " (fin de matinée, 12 h)");
+      const late = lim ? plan.rows.filter(r => r.date > lim).length : 0;
+      if (lim && lim < s) out += '<p class="bad" role="alert">La date limite (' + esc(fdate(pd(lim))) + ") est antérieure à la date de début. Fin prévue : " + esc(endTxt) + ".</p>";
+      else if (late) out += '<p class="bad" role="alert">Le chantier ne peut pas se terminer avant la date limite du ' + esc(fdate(pd(lim))) + " : fin prévue le " + esc(endTxt) + ", soit " + late + " demi-journée" + (late > 1 ? "s" : "") + " après la date limite.</p>";
+      else out += '<p class="ok">Fin prévue : <b>' + esc(endTxt) + "</b>" + (lim ? " — avant la date limite du " + esc(fdate(pd(lim))) + "." : ".") + "</p>";
+      out += '<div class="tw"><table><thead><tr><th>Date</th><th>Demi-journée</th><th>Tâche</th><th>Durée</th></tr></thead><tbody>' +
+        plan.rows.map(r => "<tr" + (lim && r.date > lim ? ' class="late"' : "") + "><td>" + esc(fshort(pd(r.date))) + "</td><td>" + (r.half ? "Après-midi 14 h–18 h" : "Matin 8 h–12 h") +
+          "</td><td><b>" + esc(r.t.id) + "</b> " + esc(r.t.nom) + (r.n > 1 ? " <small>(" + r.k + "/" + r.n + ")</small>" : "") + "</td><td>0,5 j</td></tr>").join("") + "</tbody></table></div>";
+    }
+  }
+  $("#plan").innerHTML = out + hypHtml(plan, s, end);
+}
+
+function renderUnav() {
+  $("#d-list").innerHTML = unav.map(u => "<li><span>" + esc(fshort(pd(u))) + (baseReason(pd(u)) ? " <small>(déjà non travaillé)</small>" : "") +
+    '</span><button type="button" data-d="' + u + '" aria-label="Supprimer le ' + esc(fshort(pd(u))) + '">Supprimer</button></li>').join("");
+}
+$("#d-addbtn").addEventListener("click", () => {
+  const v = $("#d-add").value;
+  if (!v) return;
+  if (!unav.includes(v)) { unav.push(v); unav.sort(); }
+  $("#d-add").value = ""; renderUnav(); renderPlan();
+});
+$("#d-list").addEventListener("click", e => {
+  const b = e.target.closest("button[data-d]"); if (!b) return;
+  unav = unav.filter(u => u !== b.dataset.d); renderUnav(); renderPlan();
+});
+["#d-start", "#d-lim"].forEach(id => { $(id).addEventListener("input", renderPlan); $(id).addEventListener("change", renderPlan); });
+load();
+</script>
+</body>
+</html>
