@@ -59,6 +59,10 @@ tr.late td{color:var(--err)}
 .bad{margin:0 0 8px;padding:10px 12px;border-radius:6px;border:1px solid var(--err);background:var(--err-bg);color:var(--err);font-weight:600}
 .hyp{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:.9rem}
 .hyp h3{margin:0 0 6px;font-size:1rem}.hyp ul{margin:0;padding-left:18px}.hyp li{margin-bottom:5px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+button.primary{background:var(--acc);color:var(--acc-ink)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.stale{margin:0 0 10px;padding:10px 12px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-weight:600}
 @media print{aside select,button{display:none}.totals{position:static}}
 </style>
 </head>
@@ -71,6 +75,10 @@ tr.late td{color:var(--err)}
       <h2>Chantier</h2>
       <label class="f">Type de chantier<select id="sel"></select></label>
       <button type="button" id="reset">Rétablir les valeurs du fichier</button>
+    </section>
+    <section class="card">
+      <h2>Équipe</h2>
+      <label class="f">Effectif disponible dans l’équipe<input type="number" id="d-cap" min="1" step="1" inputmode="numeric"></label>
     </section>
     <section class="card">
       <h2>Dates</h2>
@@ -103,7 +111,12 @@ tr.late td{color:var(--err)}
       <span><span class="big" id="t-eff">0</span> j-h <small>effort (durée × effectif)</small></span>
       <small id="t-cnt"></small>
     </div>
-    <div class="card plan" id="plan" aria-live="polite"></div>
+    <div class="card plan" id="plan">
+      <h2>Planning</h2>
+      <div class="actions"><button type="button" class="primary" id="b-calc">Recalculer le planning</button><button type="button" id="b-ics" disabled>Exporter le planning (.ics)</button></div>
+      <p class="stale" id="stale" role="status" hidden>Les données ont changé depuis le dernier calcul : cliquez sur « Recalculer le planning ». L’export est désactivé tant que le planning n’est pas à jour.</p>
+      <div id="plan-body" aria-live="polite"></div>
+    </div>
   </section>
 </main>
 <script>
@@ -227,12 +240,14 @@ function refresh() {
     li.classList.toggle("off", !s.on);
     const r = li.querySelector('[data-r="dur"]'); if (r) r.textContent = fmt(v);
     const miss = s.on ? t.apres.filter(a => !st[a].on) : [];
-    li.querySelector('[data-r="warn"]').innerHTML = miss.length ? '<span class="badge">Dépend de tâche(s) décochée(s) : ' + esc(miss.join(", ")) + "</span>" : "";
+    const cp = capVal();
+    li.querySelector('[data-r="warn"]').innerHTML = (miss.length ? '<span class="badge">Dépend de tâche(s) décochée(s) : ' + esc(miss.join(", ")) + "</span> " : "") +
+      (s.on && cp && s.eff > cp ? '<span class="badge">Cette tâche demande ' + s.eff + " personne(s) ; l’équipe disponible est de " + cp + ".</span>" : "");
     if (s.on) { d += v; e += v * s.eff; n++; }
   });
   $("#t-dur").textContent = fmt(d); $("#t-eff").textContent = fmt(e);
   $("#t-cnt").textContent = n + " tâche" + (n > 1 ? "s" : "") + " sur " + cur.taches.length;
-  renderPlan();
+  markStale();
 }
 
 $("#tasks").addEventListener("input", ev => {
@@ -278,32 +293,41 @@ function holidays(y) {
 const baseReason = d => { const w = d.getUTCDay(); if (w === 0 || w === 6) return "week-end"; return holidays(d.getUTCFullYear()).get(iso(d)) || null; };
 const skipReason = d => baseReason(d) || (unav.includes(iso(d)) ? "indisponible" : null);
 
-function buildPlan(start) {
-  const active = new Set(cur.taches.filter(t => st[t.id].on).map(t => t.id));
-  const done = new Set(cur.taches.filter(t => st[t.id].on && dur(t) === 0).map(t => t.id));
-  const left = cur.taches.filter(t => st[t.id].on && dur(t) > 0), order = [], rows = [];
+function capVal() { const v = $("#d-cap").value, n = Number(v); return v !== "" && Number.isInteger(n) && n >= 1 ? n : null; }
+
+function buildPlan(start, cap) {
+  const act = new Set(cur.taches.filter(t => st[t.id].on).map(t => t.id));
+  const left = cur.taches.filter(t => st[t.id].on), order = [], place = [], fin = {}, use = [];
   while (left.length) { // ordre du fichier, dans le respect des dépendances (celles vers des tâches décochées sont ignorées)
-    const i = left.findIndex(t => t.apres.every(a => !active.has(a) || done.has(a)));
+    const i = left.findIndex(t => t.apres.every(a => !act.has(a) || fin[a] !== undefined));
     if (i < 0) return { cycle: left.map(t => t.id) };
-    const t = left.splice(i, 1)[0]; order.push(t); done.add(t.id);
+    const t = left.splice(i, 1)[0], n = Math.round(dur(t) * 2), e = st[t.id].eff;
+    if (n > 0 && e > cap) return { overflow: true }; // déjà signalé avant le calcul
+    let s = Math.max(0, ...t.apres.filter(a => act.has(a)).map(a => fin[a]));
+    for (;;) { // premier créneau où l’équipe est assez libre pendant toute la durée de la tâche
+      let ok = true;
+      for (let k = s; k < s + n; k++) if ((use[k] || 0) + e > cap) { ok = false; s = k + 1; break; }
+      if (ok) break;
+    }
+    for (let k = s; k < s + n; k++) use[k] = (use[k] || 0) + e;
+    fin[t.id] = s + n; order.push(t); place.push({ t, s, n });
   }
+  const total = Math.max(0, ...Object.values(fin)), cal = [];
   let d = start, h = 0, guard = 0;
-  const nextSlot = () => {
-    while (skipReason(d)) { d = addD(d, 1); h = 0; if (++guard > 4000) return null; }
-    const s = { date: iso(d), half: h };
+  while (cal.length < total) { // demi-journées travaillées, dans l’ordre
+    while (skipReason(d)) { d = addD(d, 1); h = 0; if (++guard > 4000) return { overflow: true }; }
+    cal.push({ date: iso(d), half: h });
     if (h === 0) h = 1; else { h = 0; d = addD(d, 1); }
-    return s;
-  };
-  for (const t of order) {
-    const n = Math.round(dur(t) * 2);
-    for (let k = 1; k <= n; k++) { const s = nextSlot(); if (!s) return { overflow: true }; rows.push({ ...s, t, k, n }); }
   }
+  const rows = [];
+  place.forEach((p, o) => { for (let k = 0; k < p.n; k++) rows.push({ ...cal[p.s + k], idx: p.s + k, o, t: p.t, k: k + 1, n: p.n }); });
+  rows.sort((a, b) => a.idx - b.idx || a.o - b.o);
   return { rows, order };
 }
 
 function hypHtml(plan, s, end) {
   const li = [];
-  li.push("Horaires : du lundi au vendredi, matin de 8 h à 12 h, après-midi de 14 h à 18 h. Une demi-journée vaut 0,5 j ; les tâches se suivent sans interruption, sauf jours exclus. Une seule tâche à la fois.");
+  li.push("Horaires : du lundi au vendredi, matin de 8 h à 12 h, après-midi de 14 h à 18 h. Une demi-journée vaut 0,5 j ; les tâches se suivent sans interruption, sauf jours exclus. Plusieurs tâches peuvent se dérouler en même temps seulement si elles ne dépendent pas l’une de l’autre et si la somme de leurs effectifs ne dépasse pas l’effectif disponible (" + (capVal() ?? "?") + " pers.). Chaque tâche démarre dès que ses dépendances sont finies et que l’équipe est assez libre, dans l’ordre du fichier, sans interruption.");
   let ex = "Jours exclus : samedis, dimanches, jours fériés français (calculés pour chaque année, Pâques, Ascension et Pentecôte compris) et jours d’indisponibilité saisis. Les jours propres à l’Alsace-Moselle (Vendredi saint, 26 décembre) ne sont pas pris en compte ; le lundi de Pentecôte est traité comme férié.";
   if (s) {
     const up = end || (s.slice(0, 4) + "-12-31"), list = [];
@@ -321,28 +345,31 @@ function hypHtml(plan, s, end) {
 
 function renderPlan() {
   if (!cur) return;
-  const s = $("#d-start").value, lim = $("#d-lim").value, act = cur.taches.filter(t => st[t.id].on);
-  let out = "<h2>Planning</h2>", plan = null, end = null;
+  const s = $("#d-start").value, lim = $("#d-lim").value, act = cur.taches.filter(t => st[t.id].on), cap = capVal();
+  let out = "", plan = null, end = null; lastPlan = null;
   if (!s) out += '<p class="note">Choisissez une date de début pour calculer le planning.</p>';
   else if (!act.length) out += '<p class="note">Aucune tâche cochée : rien à planifier.</p>';
+  else if (cap === null) out += '<p class="bad" role="alert">Renseignez l’effectif disponible dans l’équipe (nombre entier, au moins 1) pour calculer le planning.</p>';
+  else if (act.some(t => st[t.id].eff > cap)) out += '<p class="bad" role="alert">Planning impossible : ' + esc(act.filter(t => st[t.id].eff > cap).map(t => t.id + " demande " + st[t.id].eff + " personne(s)").join(" ; ")) + ", alors que l’équipe disponible est de " + cap + " personne(s). Augmentez l’effectif disponible ou réduisez l’effectif de ces tâches.</p>";
   else {
-    plan = buildPlan(pd(s));
+    plan = buildPlan(pd(s), cap);
     if (plan.cycle) out += '<p class="bad" role="alert">Planning impossible : dépendances circulaires entre ' + esc(plan.cycle.join(", ")) + ".</p>";
     else if (plan.overflow) out += '<p class="bad" role="alert">Planning impossible : aucun jour travaillable trouvé pendant plus de 10 ans. Vérifiez les jours d’indisponibilité.</p>';
     else if (!plan.rows.length) out += '<p class="note">Toutes les tâches cochées ont une durée nulle.</p>';
     else {
-      const last = plan.rows[plan.rows.length - 1]; end = last.date;
+      const last = plan.rows[plan.rows.length - 1]; end = last.date; lastPlan = plan;
       const endTxt = fdate(pd(end)) + (last.half ? " (fin d’après-midi, 18 h)" : " (fin de matinée, 12 h)");
       const late = lim ? plan.rows.filter(r => r.date > lim).length : 0;
       if (lim && lim < s) out += '<p class="bad" role="alert">La date limite (' + esc(fdate(pd(lim))) + ") est antérieure à la date de début. Fin prévue : " + esc(endTxt) + ".</p>";
       else if (late) out += '<p class="bad" role="alert">Le chantier ne peut pas se terminer avant la date limite du ' + esc(fdate(pd(lim))) + " : fin prévue le " + esc(endTxt) + ", soit " + late + " demi-journée" + (late > 1 ? "s" : "") + " après la date limite.</p>";
       else out += '<p class="ok">Fin prévue : <b>' + esc(endTxt) + "</b>" + (lim ? " — avant la date limite du " + esc(fdate(pd(lim))) + "." : ".") + "</p>";
-      out += '<div class="tw"><table><thead><tr><th>Date</th><th>Demi-journée</th><th>Tâche</th><th>Durée</th></tr></thead><tbody>' +
+      out += '<div class="tw"><table><thead><tr><th>Date</th><th>Demi-journée</th><th>Tâche</th><th>Durée</th><th>Pers.</th></tr></thead><tbody>' +
         plan.rows.map(r => "<tr" + (lim && r.date > lim ? ' class="late"' : "") + "><td>" + esc(fshort(pd(r.date))) + "</td><td>" + (r.half ? "Après-midi 14 h–18 h" : "Matin 8 h–12 h") +
-          "</td><td><b>" + esc(r.t.id) + "</b> " + esc(r.t.nom) + (r.n > 1 ? " <small>(" + r.k + "/" + r.n + ")</small>" : "") + "</td><td>0,5 j</td></tr>").join("") + "</tbody></table></div>";
+          "</td><td><b>" + esc(r.t.id) + "</b> " + esc(r.t.nom) + (r.n > 1 ? " <small>(" + r.k + "/" + r.n + ")</small>" : "") + "</td><td>0,5 j</td><td>" + st[r.t.id].eff + "</td></tr>").join("") + "</tbody></table></div>";
     }
   }
-  $("#plan").innerHTML = out + hypHtml(plan, s, end);
+  $("#plan-body").innerHTML = out + hypHtml(plan, s, end);
+  shown = true; $("#stale").hidden = true; $("#b-ics").disabled = !lastPlan;
 }
 
 function renderUnav() {
@@ -353,13 +380,55 @@ $("#d-addbtn").addEventListener("click", () => {
   const v = $("#d-add").value;
   if (!v) return;
   if (!unav.includes(v)) { unav.push(v); unav.sort(); }
-  $("#d-add").value = ""; renderUnav(); renderPlan();
+  $("#d-add").value = ""; renderUnav(); markStale();
 });
 $("#d-list").addEventListener("click", e => {
   const b = e.target.closest("button[data-d]"); if (!b) return;
-  unav = unav.filter(u => u !== b.dataset.d); renderUnav(); renderPlan();
+  unav = unav.filter(u => u !== b.dataset.d); renderUnav(); markStale();
 });
-["#d-start", "#d-lim"].forEach(id => { $(id).addEventListener("input", renderPlan); $(id).addEventListener("change", renderPlan); });
+["#d-start", "#d-lim"].forEach(id => { $(id).addEventListener("input", markStale); $(id).addEventListener("change", markStale); });
+/* ===== Recalcul manuel et export .ics ===== */
+let shown = false, lastPlan = null;
+function clearPlan() {
+  shown = false; lastPlan = null; $("#stale").hidden = true; $("#b-ics").disabled = true;
+  $("#plan-body").innerHTML = '<p class="note">Renseignez les dates et l’effectif disponible, puis cliquez sur « Recalculer le planning ».</p>';
+}
+function markStale() {
+  if (!shown) { if (!$("#plan-body").innerHTML) clearPlan(); return; }
+  $("#stale").hidden = false; $("#b-ics").disabled = true;
+}
+const icsEsc = s => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+function fold(line) { // lignes de 75 octets au plus (UTF-8), suite précédée d’une espace
+  const enc = new TextEncoder(); let out = "", cu = "", n = 0, lim = 75;
+  for (const ch of line) { const b = enc.encode(ch).length; if (n + b > lim) { out += cu + "\r\n "; cu = ""; n = 0; lim = 74; } cu += ch; n += b; }
+  return out + cu;
+}
+function exportIcs() {
+  if (!lastPlan || !lastPlan.rows.length) return;
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const client = $("#c-nom").value.trim() || "non renseigné", ent = $("#e-nom").value.trim(), adr = $("#c-adr").value.trim();
+  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Chantier Planner//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"];
+  lastPlan.rows.forEach(r => {
+    const t = r.t, ds = r.date.replace(/-/g, ""), hh = r.half ? ["140000", "180000"] : ["080000", "120000"];
+    const mat = Array.isArray(t.materiel) ? t.materiel.join(", ") : (t.materiel || "");
+    const desc = ["Chantier : " + cur.nom, "Client : " + client, ent ? "Entreprise : " + ent : null,
+      "Tâche : " + t.id + " – " + t.nom + " (demi-journée " + r.k + "/" + r.n + ")", "Effectif : " + st[t.id].eff + " personne(s)",
+      "Matériel : " + (mat || "aucun indiqué")].filter(Boolean).join("\n");
+    L.push("BEGIN:VEVENT", "UID:" + (cur.id + "-" + t.id).replace(/[^\w.-]/g, "_") + "-" + ds + "-" + (r.half ? "pm" : "am") + "@chantier-planner",
+      "DTSTAMP:" + stamp, "DTSTART:" + ds + "T" + hh[0], "DTEND:" + ds + "T" + hh[1], "SUMMARY:" + icsEsc(t.id + " – " + t.nom));
+    if (adr) L.push("LOCATION:" + icsEsc(adr));
+    L.push("DESCRIPTION:" + icsEsc(desc), "END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  const blob = new Blob([L.map(fold).join("\r\n") + "\r\n"], { type: "text/calendar;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "planning-" + cur.id.replace(/[^\w-]/g, "_") + ".ics";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$("#b-calc").addEventListener("click", renderPlan);
+$("#b-ics").addEventListener("click", exportIcs);
+$("#d-cap").addEventListener("input", () => { if (cur) refresh(); });
+$("#sel").addEventListener("change", clearPlan);
 load();
 </script>
 </body>
