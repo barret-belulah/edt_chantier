@@ -1,0 +1,83 @@
+[
+  {
+    "Chantier": "Muret en parpaings enduit (≈ 10 ml, h ≈ 0,8 m, non soutènement)",
+    "Tâches": [
+      { "Tâche": "Implantation et niveaux", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Cordeaux, niveau laser" },
+      { "Tâche": "Fouille de la semelle", "Durée (j)": 1, "Pers.": 2, "Matériel": "Mini-pelle ou bêches" },
+      { "Tâche": "Ferraillage et coulage de la semelle", "Durée (j)": 1, "Pers.": 2, "Matériel": "Bétonnière, armatures" },
+      { "Tâche": "Attente prise de la semelle", "Durée (j)": "2 (attente)", "Pers.": "n/a", "Matériel": "n/a" },
+      { "Tâche": "Montage des parpaings et chaînages verticaux", "Durée (j)": 3, "Pers.": 2, "Matériel": "Truelles, niveau, bétonnière" },
+      { "Tâche": "Chaînage haut et couvertines", "Durée (j)": 1, "Pers.": 2, "Matériel": "Mortier, couvertines" },
+      { "Tâche": "Enduit des deux faces", "Durée (j)": 2, "Pers.": 2, "Matériel": "Échafaudage léger, taloches" }
+    ]
+  },
+  {
+    "Chantier": "Allée en pavés sur lit de pose (≈ 40 m²)",
+    "Tâches": [
+      { "Tâche": "Implantation, pentes d’évacuation", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Niveau laser, piquets" },
+      { "Tâche": "Décaissement et évacuation", "Durée (j)": 1.5, "Pers.": 2, "Matériel": "Mini-pelle, dumper" },
+      { "Tâche": "Compactage, géotextile, grave", "Durée (j)": 2, "Pers.": 2, "Matériel": "Plaque vibrante, brouettes" },
+      { "Tâche": "Bordures béton", "Durée (j)": 1.5, "Pers.": 2, "Matériel": "Bétonnière, truelles" },
+      { "Tâche": "Attente prise des bordures", "Durée (j)": "1 (attente)", "Pers.": "n/a", "Matériel": "n/a" },
+      { "Tâche": "Réglage du lit de sable", "Durée (j)": 1, "Pers.": 2, "Matériel": "Règles, tiges de réglage" },
+      { "Tâche": "Pose des pavés et coupes", "Durée (j)": 4, "Pers.": 2, "Matériel": "Maillet, cordeaux, scie à pavés" },
+      { "Tâche": "Compactage et sablage des joints", "Durée (j)": 1, "Pers.": 2, "Matériel": "Plaque vibrante à semelle caoutchouc, sable" },
+      { "Tâche": "Nettoyage", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Balai, souffleur" }
+    ]
+  },
+  {
+    "Chantier": "Dalle béton armée (≈ 20 m², épaisseur ≈ 12 cm)",
+    "Tâches": [
+      { "Tâche": "Implantation et niveaux", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Niveau laser, piquets" },
+      { "Tâche": "Décaissement et évacuation", "Durée (j)": 1, "Pers.": 2, "Matériel": "Mini-pelle, brouettes" },
+      { "Tâche": "Hérisson (grave) et film polyane", "Durée (j)": 1, "Pers.": 2, "Matériel": "Plaque vibrante" },
+      { "Tâche": "Coffrage périphérique", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Banches, piquets" },
+      { "Tâche": "Pose du treillis soudé et des cales", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Treillis, cales, pince" },
+      { "Tâche": "Coulage, réglage et talochage", "Durée (j)": 1, "Pers.": 3, "Matériel": "Toupie, règle vibrante, taloches" },
+      { "Tâche": "Sciage des joints", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Scie à béton" },
+      { "Tâche": "Décoffrage", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Marteau, pied-de-biche" }
+    ]
+  },
+  {
+    "Chantier": "Clôture rigide et portail (≈ 30 ml)",
+    "Tâches": [
+      { "Tâche": "Implantation, vérification des limites", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Cordeau, mètre, plan de bornage" },
+      { "Tâche": "Fouilles des poteaux", "Durée (j)": 1, "Pers.": 2, "Matériel": "Tarière, bêches" },
+      { "Tâche": "Scellement des poteaux", "Durée (j)": 1, "Pers.": 2, "Matériel": "Bétonnière, niveau" },
+      { "Tâche": "Attente prise des scellements", "Durée (j)": "2 (attente)", "Pers.": "n/a", "Matériel": "n/a" },
+      { "Tâche": "Pose des panneaux et fixations", "Durée (j)": 2, "Pers.": 2, "Matériel": "Visseuse, niveau" },
+      { "Tâche": "Pose et réglage du portail", "Durée (j)": 1, "Pers.": 2, "Matériel": "Visseuse, niveau" },
+      { "Tâche": "Finitions (capuchons, réglages)", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Outillage à main" }
+    ]
+  },
+  {
+    "Chantier": "Mobilier d’espace extérieur (≈ 4 bancs, 2 tables de pique-nique, 6 corbeilles, 1 abri vélos)",
+    "Tâches": [
+      { "Tâche": "Implantation selon plan et repérage des réseaux (DT-DICT)", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Plan, cordeaux, piquets" },
+      { "Tâche": "Réception, contrôle et tri du matériel", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Transpalette, bordereau" },
+      { "Tâche": "Fouilles des plots", "Durée (j)": 1.5, "Pers.": 2, "Matériel": "Tarière, mini-pelle" },
+      { "Tâche": "Coulage des plots et scellement des platines", "Durée (j)": 1, "Pers.": 2, "Matériel": "Bétonnière, niveau" },
+      { "Tâche": "Attente prise des plots", "Durée (j)": "1 (attente)", "Pers.": "n/a", "Matériel": "n/a" },
+      { "Tâche": "Assemblage et fixation (bancs, tables, abri vélos)", "Durée (j)": 1.5, "Pers.": 2, "Matériel": "Visseuse, clés, niveau" },
+      { "Tâche": "Pose des corbeilles et de la signalétique", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Outillage à main" },
+      { "Tâche": "Contrôle, serrage et réception", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Clés dynamométriques" }
+    ]
+  },
+  {
+    "Chantier": "Aire de jeux avec 2 à 3 structures (≈ 100 m², sol amortissant en copeaux ou gravier rond)",
+    "Tâches": [
+      { "Tâche": "Plan d’implantation et zones de sécurité (espacements, zones d’impact)", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Plan, notices, cordeaux" },
+      { "Tâche": "DT-DICT et repérage des réseaux", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Plans de réseaux" },
+      { "Tâche": "Décaissement de l’emprise (≈ 30 cm)", "Durée (j)": 1, "Pers.": 2, "Matériel": "Mini-pelle, dumper" },
+      { "Tâche": "Pose des bordures périphériques", "Durée (j)": 1, "Pers.": 2, "Matériel": "Bétonnière, bordures" },
+      { "Tâche": "Fouilles des fondations des structures", "Durée (j)": 1, "Pers.": 2, "Matériel": "Tarière, mini-pelle" },
+      { "Tâche": "Prémontage des structures au sol", "Durée (j)": 1.5, "Pers.": 2, "Matériel": "Visseuse, clés, notices" },
+      { "Tâche": "Mise en place et scellement des structures (levage à 3)", "Durée (j)": 1.5, "Pers.": 3, "Matériel": "Sangles, étais, bétonnière" },
+      { "Tâche": "Attente prise du béton", "Durée (j)": "2 (attente)", "Pers.": "n/a", "Matériel": "n/a" },
+      { "Tâche": "Géotextile et sous-couche drainante", "Durée (j)": 1, "Pers.": 2, "Matériel": "Brouettes, grave, géotextile" },
+      { "Tâche": "Mise en œuvre du sol amortissant (épaisseur selon hauteur de chute)", "Durée (j)": 1.5, "Pers.": 2, "Matériel": "Brouettes, râteaux, règle" },
+      { "Tâche": "Panneau d’information, barrières, finitions", "Durée (j)": 0.5, "Pers.": 2, "Matériel": "Outillage à main" },
+      { "Tâche": "Contrôle de conformité et réception", "Durée (j)": 0.5, "Pers.": 1, "Matériel": "Notice fabricant, check-list" }
+    ]
+  }
+]
