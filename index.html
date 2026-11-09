@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f5f54">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Planificateur de chantiers paysagers</title>
 <style>
 :root{--bg:#eef1ec;--card:#fff;--ink:#1d2823;--mute:#5b6a62;--line:#d3dad4;--acc:#1f5f54;--acc-ink:#fff;--warn:#8a4b00;--warn-bg:#fff3df;--err:#a12622;--err-bg:#fdeceb;--att:#e8eef5}
@@ -63,11 +66,13 @@ tr.late td{color:var(--err)}
 button.primary{background:var(--acc);color:var(--acc-ink)}
 button:disabled{opacity:.5;cursor:not-allowed}
 .stale{margin:0 0 10px;padding:10px 12px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+#offline{background:var(--warn-bg);color:var(--warn);text-align:center;font-size:.85rem;padding:4px 8px}
 @media print{aside select,button{display:none}.totals{position:static}}
 </style>
 </head>
 <body>
 <header><h1>Planificateur de chantiers paysagers</h1></header>
+<div id="offline" role="status" hidden>Vous êtes hors ligne</div>
 <div id="err" role="alert" hidden></div>
 <main id="app" hidden>
   <aside>
@@ -429,6 +434,14 @@ $("#b-calc").addEventListener("click", renderPlan);
 $("#b-ics").addEventListener("click", exportIcs);
 $("#d-cap").addEventListener("input", () => { if (cur) refresh(); });
 $("#sel").addEventListener("change", clearPlan);
+/* ===== PWA : hors ligne et service worker ===== */
+const showOffline = () => { $("#offline").hidden = navigator.onLine; };
+window.addEventListener("online", showOffline);
+window.addEventListener("offline", showOffline);
+showOffline();
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
 load();
 </script>
 </body>
